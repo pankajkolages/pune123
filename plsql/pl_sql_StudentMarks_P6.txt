@@ -1,0 +1,56 @@
+CREATE TABLE Stud_Marks (
+    name VARCHAR2(50),
+    total_marks NUMBER(4)
+);
+
+CREATE TABLE Result (
+    roll NUMBER PRIMARY KEY,
+    name VARCHAR2(50),
+    class VARCHAR2(20)
+);
+
+INSERT INTO Stud_Marks VALUES ('Amit Kumar', 1500);
+INSERT INTO Stud_Marks VALUES ('Priya Singh', 1450);
+INSERT INTO Stud_Marks VALUES ('Ravi Patel', 950);
+INSERT INTO Stud_Marks VALUES ('Neha Sharma', 890);
+INSERT INTO Stud_Marks VALUES ('Rahul Desai', 840);
+
+COMMIT;
+
+CREATE OR REPLACE PROCEDURE proc_Grade (
+    roll_no IN NUMBER,
+    student_name IN VARCHAR2,
+    total_marks IN NUMBER
+) AS
+    student_class VARCHAR2(20);
+BEGIN
+    IF total_marks BETWEEN 990 AND 1500 THEN
+        student_class := 'Distinction';
+    ELSIF total_marks BETWEEN 900 AND 989 THEN
+        student_class := 'First Class';
+    ELSIF total_marks BETWEEN 825 AND 899 THEN
+        student_class := 'Higher Second Class';
+    ELSE
+        student_class := 'No Category';
+    END IF;
+
+    INSERT INTO Result (roll, name, class)
+    VALUES (roll_no, student_name, student_class);
+
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Roll No: ' || roll_no || ', Name: ' || student_name || ', Class: ' || student_class);
+END;
+/
+
+DECLARE
+    v_roll_no NUMBER := 1;
+BEGIN
+    FOR student_rec IN (SELECT name, total_marks FROM Stud_Marks) LOOP
+        proc_Grade(v_roll_no, student_rec.name, student_rec.total_marks);
+        v_roll_no := v_roll_no + 1;
+    END LOOP;
+END;
+/
+
+SELECT * FROM Result;

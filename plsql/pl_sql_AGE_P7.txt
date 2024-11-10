@@ -1,0 +1,42 @@
+CREATE TABLE person (
+    person_id NUMBER PRIMARY KEY,
+    name VARCHAR2(50),
+    dob DATE
+);
+
+INSERT INTO person VALUES (1, 'Amit Kumar', TO_DATE('1995-08-15', 'YYYY-MM-DD'));
+INSERT INTO person VALUES (2, 'Priya Singh', TO_DATE('2000-01-25', 'YYYY-MM-DD'));
+INSERT INTO person VALUES (3, 'Rahul Desai', TO_DATE('1988-06-10', 'YYYY-MM-DD'));
+
+COMMIT;
+
+CREATE OR REPLACE FUNCTION Age_calc (
+    dob IN DATE,
+    p_months OUT NUMBER,
+    p_days OUT NUMBER
+) RETURN NUMBER IS
+    v_years NUMBER;
+    v_total_months NUMBER;
+BEGIN
+    v_total_months := TRUNC(MONTHS_BETWEEN(SYSDATE, dob));
+    v_years := TRUNC(v_total_months / 12);
+    p_months := v_total_months MOD 12;
+    p_days := TRUNC(SYSDATE - ADD_MONTHS(dob, v_total_months));
+    RETURN v_years;
+END;
+/
+
+DECLARE
+    v_person_id NUMBER := 2;
+    v_years NUMBER;
+    v_months NUMBER;
+    v_days NUMBER;
+    v_dob DATE;
+BEGIN
+    SELECT dob INTO v_dob FROM person WHERE person_id = v_person_id;
+    v_years := Age_calc(v_dob, v_months, v_days);
+    DBMS_OUTPUT.PUT_LINE('Age: ' || v_years || ' years, ' || v_months || ' months, ' || v_days || ' days');
+END;
+/
+
+SELECT * FROM person;

@@ -1,0 +1,41 @@
+CREATE TABLE emp (
+    emp_no NUMBER PRIMARY KEY,
+    salary NUMBER(10,2)
+);
+
+INSERT INTO emp VALUES (1, 30000);
+INSERT INTO emp VALUES (2, 40000);
+INSERT INTO emp VALUES (3, 25000);
+INSERT INTO emp VALUES (4, 50000);
+INSERT INTO emp VALUES (5, 20000);
+
+SELECT * FROM emp;
+
+CREATE TABLE increment_salary (
+    emp_no NUMBER,
+    salary NUMBER(10,2),
+    increment_date DATE DEFAULT SYSDATE
+);
+
+COMMIT;
+
+DECLARE
+    v_avg_salary NUMBER(10,2);
+BEGIN
+    SELECT AVG(salary) INTO v_avg_salary FROM emp;
+
+    FOR emp_rec IN (SELECT emp_no, salary FROM emp WHERE salary < v_avg_salary) LOOP
+        UPDATE emp
+        SET salary = salary * 1.10
+        WHERE emp_no = emp_rec.emp_no;
+
+        INSERT INTO increment_salary (emp_no, salary)
+        VALUES (emp_rec.emp_no, emp_rec.salary * 1.10);
+    END LOOP;
+
+    COMMIT;
+END;
+
+SELECT * FROM emp;
+
+SELECT * FROM increment_salary;

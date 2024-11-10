@@ -1,0 +1,46 @@
+CREATE TABLE Emp (
+    Emp_no NUMBER PRIMARY KEY,
+    Emp_name VARCHAR2(50),
+    Emp_salary NUMBER(10,2)
+);
+
+CREATE TABLE Tracking (
+    Emp_no NUMBER,
+    Emp_salary NUMBER(10,2)
+);
+
+CREATE OR REPLACE TRIGGER trg_emp_salary_check
+AFTER INSERT OR UPDATE OR DELETE ON Emp
+FOR EACH ROW
+BEGIN
+    IF (INSERTING OR UPDATING) AND :NEW.Emp_salary < 50000 THEN
+        INSERT INTO Tracking (Emp_no, Emp_salary)
+        VALUES (:NEW.Emp_no, :NEW.Emp_salary);
+    ELSIF DELETING THEN
+        DBMS_OUTPUT.PUT_LINE('Record deleted for Emp_no: ' || :OLD.Emp_no);
+    END IF;
+END;
+/
+
+INSERT INTO Emp VALUES (1, 'Amit', 45000);
+INSERT INTO Emp VALUES (2, 'Priya', 55000);
+INSERT INTO Emp VALUES (3, 'Ravi', 60000);
+COMMIT;
+
+SELECT * FROM Emp;
+
+SELECT * FROM Tracking;
+
+UPDATE Emp SET Emp_salary = 48000 WHERE Emp_no = 3;
+COMMIT;
+
+SELECT * FROM Emp;
+
+SELECT * FROM Tracking;
+
+DELETE FROM Emp WHERE Emp_no = 2;
+COMMIT;
+
+SELECT * FROM Emp;
+
+SELECT * FROM Tracking;

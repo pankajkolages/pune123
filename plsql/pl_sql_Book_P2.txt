@@ -1,0 +1,65 @@
+CREATE TABLE Borrower (
+    Rollin NUMBER PRIMARY KEY,
+    NameofBook VARCHAR2(100) NOT NULL,
+    DateofIssue DATE,
+    Status CHAR(1) CHECK (Status IN ('I', 'R'))
+);
+
+CREATE TABLE Fine (
+    Roll_no NUMBER,
+    Date DATE,
+    Amt NUMBER(10,2),
+    FOREIGN KEY (Roll_no) REFERENCES Borrower(Rollin)
+);
+
+INSERT INTO Borrower VALUES (101, 'Database Management', DATE '2023-10-01', 'I');
+INSERT INTO Borrower VALUES (102, 'Operating Systems', DATE '2023-09-15', 'I');
+INSERT INTO Borrower VALUES (103, 'Data Structures', DATE '2023-08-01', 'I');
+COMMIT;
+
+DECLARE
+    v_roll_no        NUMBER;
+    v_name_of_book   VARCHAR2(100);
+    v_date_of_issue  DATE;
+    v_current_date   DATE := SYSDATE;
+    v_days           NUMBER;
+    v_fine_amt       NUMBER := 0;
+    v_status         CHAR(1);
+BEGIN
+    v_roll_no := &roll_no;
+    v_name_of_book := '&name_of_book';
+
+    SELECT DateofIssue, Status
+    INTO v_date_of_issue, v_status
+    FROM Borrower
+    WHERE Rollin = v_roll_no AND NameofBook = v_name_of_book;
+
+    v_days := (v_current_date - v_date_of_issue);
+
+    IF v_days BETWEEN 15 AND 30 THEN
+        v_fine_amt := v_days * 5;
+    ELSIF v_days > 30 THEN
+        v_fine_amt := (v_days - 30) * 50 + 30 * 5;
+    END IF;
+
+    IF v_fine_amt > 0 THEN
+        INSERT INTO Fine (Roll_no, Date, Amt)
+        VALUES (v_roll_no, v_current_date, v_fine_amt);
+    END IF;
+
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Rollin = v_roll_no AND NameofBook = v_name_of_book;
+
+    COMMIT;
+
+    IF v_fine_amt > 0 THEN
+        DBMS_OUTPUT.PUT_LINE('Fine for roll number ' || v_roll_no || ' is: Rs ' || v_fine_amt);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No fine applicable for roll number ' || v_roll_no);
+    END IF;
+END;
+
+SELECT * FROM Fine;
+
+SELECT * FROM Borrower WHERE Rollin = <your_roll_no>;

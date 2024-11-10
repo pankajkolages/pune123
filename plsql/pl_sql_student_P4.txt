@@ -1,0 +1,44 @@
+CREATE TABLE Stud (
+    Roll NUMBER PRIMARY KEY,
+    Name VARCHAR2(50),
+    Attendance NUMBER(5,2),
+    Status VARCHAR2(20)
+);
+
+INSERT INTO Stud VALUES (1, 'Amit Kumar', 80.5, NULL);
+INSERT INTO Stud VALUES (2, 'Priya Singh', 60.0, NULL);
+INSERT INTO Stud VALUES (3, 'Ravi Patel', 75.0, NULL);
+INSERT INTO Stud VALUES (4, 'Neha Sharma', 50.0, NULL);
+INSERT INTO Stud VALUES (5, 'Rahul Desai', 85.0, NULL);
+
+COMMIT;
+
+DECLARE
+    v_roll NUMBER;
+    v_attendance NUMBER(5,2);
+    v_status VARCHAR2(20);
+
+BEGIN
+    v_roll := &roll_no;
+
+    SELECT Attendance INTO v_attendance
+    FROM Stud
+    WHERE Roll = v_roll;
+
+    IF v_attendance < 75 THEN
+        v_status := 'Detained';
+        DBMS_OUTPUT.PUT_LINE('Term not granted');
+    ELSE
+        v_status := 'Not Detained';
+        DBMS_OUTPUT.PUT_LINE('Term granted');
+    END IF;
+
+    UPDATE Stud
+    SET Status = v_status
+    WHERE Roll = v_roll;
+
+    COMMIT;
+
+END;
+
+SELECT * FROM Stud;

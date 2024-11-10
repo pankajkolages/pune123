@@ -1,0 +1,56 @@
+CREATE TABLE N_RollCall (
+    roll_no NUMBER PRIMARY KEY,
+    student_name VARCHAR2(100)
+);
+
+CREATE TABLE O_RollCall (
+    roll_no NUMBER PRIMARY KEY,
+    student_name VARCHAR2(100)
+);
+
+INSERT INTO N_RollCall (roll_no, student_name) VALUES (1, 'Aarav Sharma');
+INSERT INTO N_RollCall (roll_no, student_name) VALUES (2, 'Isha Patel');
+INSERT INTO N_RollCall (roll_no, student_name) VALUES (3, 'Rohan Verma');
+INSERT INTO N_RollCall (roll_no, student_name) VALUES (4, 'Neha Gupta');
+INSERT INTO N_RollCall (roll_no, student_name) VALUES (5, 'Karan Singh');
+
+INSERT INTO O_RollCall (roll_no, student_name) VALUES (1, 'Aarav Sharma');
+INSERT INTO O_RollCall (roll_no, student_name) VALUES (3, 'Rohan Verma');
+COMMIT;
+
+DECLARE
+    CURSOR cur_new_rollcall IS
+        SELECT roll_no, student_name FROM N_RollCall;
+
+    v_roll_no        NUMBER;
+    v_student_name   VARCHAR2(100);
+    v_exists         NUMBER;
+BEGIN
+    OPEN cur_new_rollcall;
+
+    LOOP
+        FETCH cur_new_rollcall INTO v_roll_no, v_student_name;
+        EXIT WHEN cur_new_rollcall%NOTFOUND;
+
+        SELECT COUNT(*)
+        INTO v_exists
+        FROM O_RollCall
+        WHERE roll_no = v_roll_no AND student_name = v_student_name;
+
+        IF v_exists = 0 THEN
+            INSERT INTO O_RollCall (roll_no, student_name)
+            VALUES (v_roll_no, v_student_name);
+        END IF;
+    END LOOP;
+
+    CLOSE cur_new_rollcall;
+
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Data merged successfully!');
+END;
+/
+
+SELECT * FROM O_RollCall;
+
+SELECT * FROM N_RollCall;

@@ -1,0 +1,43 @@
+CREATE TABLE CUSTOMERS (
+    customer_id NUMBER PRIMARY KEY,
+    customer_name VARCHAR2(100),
+    salary NUMBER(10, 2)
+);
+
+INSERT INTO CUSTOMERS VALUES (1, 'Rajesh Kumar', 50000);
+INSERT INTO CUSTOMERS VALUES (2, 'Anita Sharma', 75000);
+INSERT INTO CUSTOMERS VALUES (3, 'Vikram Singh', 60000);
+
+COMMIT;
+
+CREATE OR REPLACE TRIGGER trg_customers_salary_diff
+AFTER INSERT OR UPDATE OR DELETE ON CUSTOMERS
+FOR EACH ROW
+DECLARE
+    v_salary_difference NUMBER;
+BEGIN
+    IF UPDATING THEN
+        v_salary_difference := :NEW.salary - :OLD.salary;
+        DBMS_OUTPUT.PUT_LINE('Salary difference for updated record: ' || v_salary_difference);
+    ELSIF DELETING THEN
+        DBMS_OUTPUT.PUT_LINE('Deleted record with salary: ' || :OLD.salary);
+    ELSIF INSERTING THEN
+        DBMS_OUTPUT.PUT_LINE('Inserted record with salary: ' || :NEW.salary);
+    END IF;
+END;
+/
+
+INSERT INTO CUSTOMERS (customer_id, customer_name, salary) VALUES (4, 'Suresh Patel', 65000);
+COMMIT;
+
+SELECT * FROM CUSTOMERS;
+
+UPDATE CUSTOMERS SET salary = 70000 WHERE customer_id = 1;
+COMMIT;
+
+SELECT * FROM CUSTOMERS;
+
+DELETE FROM CUSTOMERS WHERE customer_id = 2;
+COMMIT;
+
+SELECT * FROM CUSTOMERS;
