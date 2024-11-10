@@ -1,0 +1,157 @@
+// Step 1: Use or create the 'CompanyDB' database
+use CompanyDB
+
+// Step 2: Create the 'Employee' collection and insert sample documents
+db.Employee.insertMany([
+    {
+        Name: { FName: "Rahul", LName: "Sharma" },
+        CompanyName: "TCS",
+        Salary: 60000,
+        Designation: "Developer",
+        Age: 28,
+        Expertise: ["JavaScript", "Node.js", "MongoDB"],
+        DOB: "1996-05-12",
+        Email: "rahul.sharma@tcs.com",
+        Contact: "9876543210",
+        Address: [
+            { PAddr: "123 Main St, Delhi", LAddr: "456 Park Ave, Mumbai" }
+        ]
+    },
+    {
+        Name: { FName: "Priya", LName: "Mehta" },
+        CompanyName: "Infosys",
+        Salary: 55000,
+        Designation: "Analyst",
+        Age: 27,
+        Expertise: ["Python", "SQL", "Data Analysis"],
+        DOB: "1997-03-18",
+        Email: "priya.mehta@infosys.com",
+        Contact: "8765432109",
+        Address: [
+            { PAddr: "789 Hill Road, Pune", LAddr: "890 Green St, Bangalore" }
+        ]
+    },
+    {
+        Name: { FName: "Amit", LName: "Patel" },
+        CompanyName: "TCS",
+        Salary: 50000,
+        Designation: "Tester",
+        Age: 25,
+        Expertise: ["Manual Testing", "Automation", "Selenium"],
+        DOB: "1998-07-20",
+        Email: "amit.patel@tcs.com",
+        Contact: "9123456789",
+        Address: [
+            { PAddr: "123 Tech Blvd, Ahmedabad", LAddr: "456 Innovation Rd, Surat" }
+        ]
+    },
+    {
+        Name: { FName: "Sunita", LName: "Rao" },
+        CompanyName: "Wipro",
+        Salary: 48000,
+        Designation: "HR",
+        Age: 32,
+        Expertise: ["Recruitment", "Management", "Communication"],
+        DOB: "1992-11-02",
+        Email: "sunita.rao@wipro.com",
+        Contact: "9988776655",
+        Address: [
+            { PAddr: "45 Industry Lane, Chennai", LAddr: "67 Business St, Hyderabad" }
+        ]
+    },
+    {
+        Name: { FName: "Pankaj", LName: "Verma" },
+        CompanyName: "Infosys",
+        Salary: 70000,
+        Designation: "Developer",
+        Age: 29,
+        Expertise: ["Java", "Spring Boot", "Microservices"],
+        DOB: "1995-01-15",
+        Email: "pankaj.verma@infosys.com",
+        Contact: "9900775544",
+        Address: [
+            { PAddr: "78 Lake View, Pune", LAddr: "101 Main Rd, Delhi" }
+        ]
+    }
+])
+
+// Step 3: MapReduce to display the total salary of each company
+db.Employee.mapReduce(
+    function () { emit(this.CompanyName, this.Salary); },
+    function (key, values) { return Array.sum(values); },
+    {
+        out: "total_salary_per_company"
+    }
+)
+db.total_salary_per_company.find().pretty()
+
+// Step 4: MapReduce to display the total salary of company "TCS"
+db.Employee.mapReduce(
+    function () {
+        if (this.CompanyName === "TCS") {
+            emit(this.CompanyName, this.Salary);
+        }
+    },
+    function (key, values) { return Array.sum(values); },
+    {
+        out: "total_salary_TCS"
+    }
+)
+db.total_salary_TCS.find().pretty()
+
+// Step 5: MapReduce to return the average salary of employees whose PAddr includes "Pune"
+db.Employee.mapReduce(
+    function () {
+        this.Address.forEach(function (addr) {
+            if (addr.PAddr.includes("Pune")) {
+                emit("Pune", { salary: this.Salary, count: 1 });
+            }
+        });
+    },
+    function (key, values) {
+        let totalSalary = 0;
+        let totalCount = 0;
+        values.forEach(function (val) {
+            totalSalary += val.salary;
+            totalCount += val.count;
+        });
+        return { avgSalary: totalSalary / totalCount };
+    },
+    {
+        out: "avg_salary_Pune"
+    }
+)
+db.avg_salary_Pune.find().pretty()
+
+// Step 6: Find the total count of employees where city (PAddr or LAddr) is "Pune"
+db.Employee.aggregate([
+    {
+        $match: {
+            $or: [
+                { "Address.PAddr": { $regex: "Pune", $options: "i" } },
+                { "Address.LAddr": { $regex: "Pune", $options: "i" } }
+            ]
+        }
+    },
+    {
+        $count: "Total_Employees_in_Pune"
+    }
+])
+
+// Step 7: Count for employees where city (PAddr or LAddr) is "Pune" and age is greater than 40
+// db.Employee.aggregate([
+//     {
+//         $match: {
+//             $or: [
+//                 { "Address.PAddr": { $regex: "Pune", $options: "i" } },
+//                 { "Address.LAddr": { $regex: "Pune", $options: "i" } }
+//             ],
+//             Age: { $gt: 40 }
+//         }
+//     },
+//     {
+//         $count: "Count_Pune_Age_gt_40"
+//     }
+// ])
+
+// End of MongoDB code

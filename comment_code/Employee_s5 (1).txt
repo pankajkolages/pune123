@@ -1,0 +1,85 @@
+create database Employee_s5;
+
+use Employee_s5;
+
+-- Create Works table with a foreign key reference to Employee table
+CREATE TABLE Works (
+    emp_id INT NOT NULL,
+    employee_name VARCHAR(50) NOT NULL,
+    company_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (employee_name, company_name),
+    FOREIGN KEY (employee_name) REFERENCES Employee(employee_name)
+);
+
+-- Create Company table
+CREATE TABLE Company (
+    company_name VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50) NOT NULL
+);
+
+-- Create Manages table with a foreign key reference to Employee table
+CREATE TABLE Manages (
+    emp_id INT NOT NULL,
+    employee_name VARCHAR(50) NOT NULL,
+    manager_name VARCHAR(50) NOT NULL,
+    PRIMARY KEY (employee_name, manager_name),
+    FOREIGN KEY (employee_name) REFERENCES Employee(employee_name),
+    FOREIGN KEY (manager_name) REFERENCES Employee(employee_name)
+);
+
+-- Insert data into Employee table
+INSERT INTO Employee (emp_id, employee_name, street, city) VALUES
+(101, 'Amit Sharma', 'MG Road', 'Mumbai'),
+(102, 'Priya Desai', 'Nehru Street', 'Pune'),
+(103, 'Rahul Verma', 'Brigade Road', 'Bangalore'),
+(104, 'Neha Gupta', 'Park Street', 'Kolkata'),
+(105, 'Vikas Singh', 'Link Road', 'Hyderabad');
+
+-- Insert data into Works table
+INSERT INTO Works (emp_id, employee_name, company_name, salary) VALUES
+(101, 'Amit Sharma', 'TCS', 9000.00),
+(102, 'Priya Desai', 'TechM', 12000.00),
+(103, 'Rahul Verma', 'InfoSys', 11000.00),
+(104, 'Neha Gupta', 'TCS', 9500.00),
+(105, 'Vikas Singh', 'TechM', 13000.00);
+
+-- Insert data into Company table
+INSERT INTO Company (company_name, city) VALUES
+('TCS', 'Mumbai'),
+('TechM', 'Pune'),
+('InfoSys', 'Hyderabad');
+
+-- Insert data into Manages table
+INSERT INTO Manages (emp_id, employee_name, manager_name) VALUES
+(101, 'Amit Sharma', 'Rahul Verma'),
+(102, 'Priya Desai', 'Neha Gupta'),
+(103, 'Rahul Verma', 'Vikas Singh');
+
+-- Find the names of all employees who work for ‘TCS’.
+SELECT employee_name
+FROM Works
+WHERE company_name = 'TCS';
+
+-- Find the names and company names of all employees sorted in ascending order of company name and descending order of employee names.
+SELECT employee_name, company_name
+FROM Works
+ORDER BY company_name ASC, employee_name DESC;
+
+--Change the city of employees working with InfoSys to ‘Bangalore’.
+UPDATE Employee
+SET city = 'Bangalore'
+WHERE employee_name IN (
+    SELECT employee_name
+    FROM Works
+    WHERE company_name = 'InfoSys'
+);
+
+-- Find the names, street address, and cities of residence for all employees who work for 'TechM' and earn more than $10,000.
+SELECT E.employee_name, E.street, E.city
+FROM Employee E
+JOIN Works W ON E.employee_name = W.employee_name
+WHERE W.company_name = 'TechM' AND W.salary > 10000;
+
+-- Add a column Asset to the Company table.
+ALTER TABLE Company ADD COLUMN asset DECIMAL(15, 2);

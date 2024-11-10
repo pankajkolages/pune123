@@ -1,0 +1,98 @@
+create database Customer_s9;
+
+use Customer_s9;
+
+-- Create CUSTOMERS table
+CREATE TABLE CUSTOMERS (
+    CNo INT PRIMARY KEY,
+    Cname VARCHAR(50) NOT NULL,
+    Ccity VARCHAR(50) NOT NULL,
+    CMobile VARCHAR(15) UNIQUE NOT NULL
+);
+
+-- Create ITEMS table
+CREATE TABLE ITEMS (
+    INo INT PRIMARY KEY,
+    Iname VARCHAR(50) NOT NULL,
+    Itype VARCHAR(50) NOT NULL,
+    Iprice DECIMAL(10, 2) NOT NULL,
+    Icount INT NOT NULL
+);
+
+-- Create PURCHASE table
+CREATE TABLE PURCHASE (
+    PNo INT PRIMARY KEY,
+    Pdate DATE NOT NULL,
+    Pquantity INT NOT NULL,
+    Cno INT,
+    INo INT,
+    FOREIGN KEY (Cno) REFERENCES CUSTOMERS(CNo),
+    FOREIGN KEY (INo) REFERENCES ITEMS(INo)
+);
+
+-- Insert data into CUSTOMERS table
+INSERT INTO CUSTOMERS (CNo, Cname, Ccity, CMobile) VALUES
+(1, 'Gopal', 'Mumbai', '9876543210'),
+(2, 'Maya', 'Pune', '9123456789'),
+(3, 'Arjun', 'Delhi', '9234567890'),
+(4, 'Radha', 'Bangalore', '9345678901'),
+(5, 'Ravi', 'Chennai', '9456789012');
+
+-- Insert data into ITEMS table
+INSERT INTO ITEMS (INo, Iname, Itype, Iprice, Icount) VALUES
+(101, 'Notebook', 'Stationary', 500, 50),
+(102, 'Pen', 'Stationary', 20, 200),
+(103, 'Pencil', 'Stationary', 10, 300),
+(104, 'Eraser', 'Stationary', 15, 150),
+(105, 'File Folder', 'Stationary', 800, 100),
+(106, 'Laptop', 'Electronics', 45000, 10),
+(107, 'Mouse', 'Electronics', 1000, 30);
+
+-- Insert data into PURCHASE table
+INSERT INTO PURCHASE (PNo, Pdate, Pquantity, Cno, INo) VALUES
+(1, '2024-11-01', 2, 1, 101),
+(2, '2024-11-02', 1, 2, 105),
+(3, '2024-11-03', 3, 3, 107),
+(4, '2024-11-04', 1, 2, 101),
+(5, '2024-11-05', 2, 4, 106),
+(6, '2024-11-06', 4, 2, 105),
+(7, '2024-11-07', 1, 5, 102);
+
+-- List all stationary items with price between 400/- to 1000/-.
+SELECT * FROM ITEMS
+WHERE Itype = 'Stationary' AND Iprice BETWEEN 400 AND 1000;
+
+-- change the mobile number of customer “Gopal”.
+UPDATE CUSTOMERS
+SET CMobile = '9998887776'
+WHERE Cname = 'Gopal';
+
+-- Display the item with the maximum price.
+SELECT * FROM ITEMS
+WHERE Iprice = (SELECT MAX(Iprice) FROM ITEMS);
+
+-- Display all purchases sorted from the most recent to the oldest.
+SELECT * FROM PURCHASE
+ORDER BY Pdate DESC;
+
+-- Count the number of customers in every city.
+SELECT Ccity, COUNT(*) AS num_of_customers
+FROM CUSTOMERS
+GROUP BY Ccity;
+
+-- Display all purchased quantity of Customer Maya.
+SELECT P.PNo, P.Pdate, P.Pquantity, I.Iname
+FROM PURCHASE P
+JOIN CUSTOMERS C ON P.Cno = C.CNo
+JOIN ITEMS I ON P.INo = I.INo
+WHERE C.Cname = 'Maya';
+
+-- Create a view that shows Iname, Price, and Count of all stationary items in descending order of price.
+CREATE VIEW StationaryItemsView AS
+SELECT Iname, Iprice, Icount
+FROM ITEMS
+WHERE Itype = 'Stationary'
+ORDER BY Iprice DESC;
+
+
+

@@ -1,0 +1,130 @@
+create database Bank_s1;
+
+use Bank_s1;
+
+-- Create Branch table
+CREATE TABLE Branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50) NOT NULL,
+    assets DECIMAL(15, 2) NOT NULL
+);
+
+-- Create Customer table
+CREATE TABLE Customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100) NOT NULL,
+    cust_city VARCHAR(50) NOT NULL
+);
+
+-- Create Account table
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    balance DECIMAL(15, 2) NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+-- Create Depositor table
+CREATE TABLE Depositor (
+    cust_name VARCHAR(50),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (Acc_no) REFERENCES Account(Acc_no)
+);
+
+-- Create Loan table
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    amount DECIMAL(15, 2) NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+-- Create Borrower table
+CREATE TABLE Borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+
+-- Insert data into Branch
+INSERT INTO Branch (branch_name, branch_city, assets) VALUES
+('Wadia College', 'Pune', 5000000),
+('Main Branch', 'Mumbai', 10000000),
+('Shivaji Nagar', 'Pune', 7500000),
+('MG Road', 'Bangalore', 6000000),
+('Connaught Place', 'Delhi', 9000000);
+
+-- Insert data into Account
+INSERT INTO Account (Acc_no, branch_name, balance) VALUES
+(1001, 'Wadia College', 1500.00),
+(1002, 'Main Branch', 3000.00),
+(1003, 'Shivaji Nagar', 5000.00),
+(1004, 'MG Road', 7000.00),
+(1005, 'Connaught Place', 9000.00);
+
+-- Insert data into Customer
+INSERT INTO Customer (cust_name, cust_street, cust_city) VALUES
+('Amit Sharma', '101 MG Road', 'Pune'),
+('Ravi Kumar', '202 Laxmi Nagar', 'Mumbai'),
+('Priya Singh', '303 Shivaji Nagar', 'Bangalore'),
+('Sonal Patel', '404 Connaught Place', 'Delhi'),
+('Vikram Deshmukh', '505 Koregaon Park', 'Pune');
+
+-- Insert data into Depositor
+INSERT INTO Depositor (cust_name, acc_no) VALUES
+('Amit Sharma', 1001),
+('Ravi Kumar', 1002),
+('Priya Singh', 1003),
+('Sonal Patel', 1004),
+('Vikram Deshmukh', 1005);
+
+-- Insert data into Loan
+INSERT INTO Loan (loan_no, branch_name, amount) VALUES
+(2001, 'Wadia College', 15000.00),
+(2002, 'Main Branch', 10000.00),
+(2003, 'Shivaji Nagar', 25000.00),
+(2004, 'MG Road', 18000.00),
+(2005, 'Connaught Place', 22000.00);
+
+-- Insert data into Borrower
+INSERT INTO Borrower (cust_name, loan_no) VALUES
+('Amit Sharma', 2001),
+('Ravi Kumar', 2002),
+('Priya Singh', 2003),
+('Sonal Patel', 2004),
+('Vikram Deshmukh', 2005);
+
+-- branch name
+SELECT DISTINCT branch_name FROM Loan;
+
+-- loan number
+SELECT loan_no 
+FROM Loan 
+WHERE branch_name = 'Wadia College' AND amount > 12000;
+
+-- Find all customers who have a loan from the bank.
+SELECT Customer.cust_name, Loan.loan_no, Loan.amount 
+FROM Customer
+JOIN Borrower ON Customer.cust_name = Borrower.cust_name
+JOIN Loan ON Borrower.loan_no = Loan.loan_no;
+
+
+-- all customers in alphabetical order who have a loan from the 'Wadia College' branch.
+SELECT DISTINCT Customer.cust_name 
+FROM Customer
+JOIN Borrower ON Customer.cust_name = Borrower.cust_name
+JOIN Loan ON Borrower.loan_no = Loan.loan_no
+WHERE Loan.branch_name = 'Wadia College'
+ORDER BY Customer.cust_name;
+
+
+-- Display distinct cities of branches.
+SELECT DISTINCT branch_city 
+FROM Branch;
+
+
+

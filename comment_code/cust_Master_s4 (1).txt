@@ -1,0 +1,120 @@
+CREATE DATABASE Customer_s4;
+
+use Customer_s4;
+
+-- Create Cust_Master table
+CREATE TABLE Cust_Master (
+    Cust_no VARCHAR(10) PRIMARY KEY,
+    Cust_name VARCHAR(50) NOT NULL,
+    Cust_addr VARCHAR(100) NOT NULL
+);
+
+-- Create Order table
+CREATE TABLE Order_Table (
+    Order_no VARCHAR(10) PRIMARY KEY,
+    Cust_no VARCHAR(10) NOT NULL,
+    Order_date DATE NOT NULL,
+    Qty_Ordered INT NOT NULL,
+    FOREIGN KEY (Cust_no) REFERENCES Cust_Master(Cust_no)
+);
+
+-- Create Product table
+CREATE TABLE Product (
+    Product_no VARCHAR(10) PRIMARY KEY,
+    Product_name VARCHAR(50) NOT NULL,
+    Order_no VARCHAR(10) NOT NULL,
+    FOREIGN KEY (Order_no) REFERENCES Order_Table(Order_no)
+);
+
+-- Insert data into Cust_Master
+INSERT INTO Cust_Master VALUES ('C1001', 'Rahul Sharma', 'Mumbai');
+INSERT INTO Cust_Master VALUES ('C1002', 'Anjali Mehta', 'Delhi');
+INSERT INTO Cust_Master VALUES ('C1003', 'Vikram Joshi', 'Banglore');
+INSERT INTO Cust_Master VALUES ('C1004', 'Ramesh Rao', 'Manglore');
+INSERT INTO Cust_Master VALUES ('C1005', 'Amitabh Gupta', 'Chennai');
+INSERT INTO Cust_Master VALUES ('C1006', 'Pooja Kumari', 'Kolkata');
+INSERT INTO Cust_Master VALUES ('C1007', 'Sanjay Patel', 'Banglore');
+INSERT INTO Cust_Master VALUES ('C1008', 'Arjun Nair', 'Manglore');
+
+-- Insert data into Order_Table
+INSERT INTO Order_Table VALUES ('O101', 'C1001', '2024-10-01', 5);
+INSERT INTO Order_Table VALUES ('O102', 'C1002', '2024-10-05', 3);
+INSERT INTO Order_Table VALUES ('O103', 'C1003', '2024-10-10', 7);
+INSERT INTO Order_Table VALUES ('O104', 'C1004', '2024-10-15', 2);
+INSERT INTO Order_Table VALUES ('O105', 'C1005', '2024-10-20', 6);
+INSERT INTO Order_Table VALUES ('O106', 'C1006', '2024-10-25', 4);
+INSERT INTO Order_Table VALUES ('O107', 'C1007', '2024-10-30', 8);
+INSERT INTO Order_Table VALUES ('O108', 'C1008', '2024-11-01', 1);
+
+-- Insert data into Product
+INSERT INTO Product VALUES ('P001', 'Laptop', 'O101');
+INSERT INTO Product VALUES ('P002', 'Smartphone', 'O102');
+INSERT INTO Product VALUES ('P003', 'Tablet', 'O103');
+INSERT INTO Product VALUES ('P004', 'Headphones', 'O104');
+INSERT INTO Product VALUES ('P005', 'Camera', 'O105');
+INSERT INTO Product VALUES ('P006', 'Smartwatch', 'O106');
+INSERT INTO Product VALUES ('P007', 'Monitor', 'O107');
+INSERT INTO Product VALUES ('P008', 'Printer', 'O108');
+
+-- List names of customers having 'A' as the second letter in their name
+SELECT Cust_name 
+FROM Cust_Master 
+WHERE Cust_name LIKE '_A%';
+
+--Display orders from Customer no C1002, C1005, C1007, and C1008
+SELECT * 
+FROM Order_Table 
+WHERE Cust_no IN ('C1002', 'C1005', 'C1007', 'C1008');
+
+-- List clients who stay in either 'Banglore' or 'Manglore
+SELECT Cust_name 
+FROM Cust_Master 
+WHERE Cust_addr IN ('Banglore', 'Manglore');
+
+--Display names of customers and the product names they have purchased.
+SELECT Cust_Master.Cust_name, Product.Product_name 
+FROM Cust_Master
+JOIN Order_Table ON Cust_Master.Cust_no = Order_Table.Cust_no
+JOIN Product ON Order_Table.Order_no = Product.Order_no;
+
+-- Create a view View1 consisting of Cust_name, Product_name.
+CREATE VIEW View1 AS
+SELECT Cust_Master.Cust_name, Product.Product_name
+FROM Cust_Master
+JOIN Order_Table ON Cust_Master.Cust_no = Order_Table.Cust_no
+JOIN Product ON Order_Table.Order_no = Product.Order_no;
+
+-- Display product name and quantity purchased by each customer.
+SELECT Cust_Master.Cust_name, Product.Product_name, Order_Table.Qty_Ordered
+FROM Cust_Master
+JOIN Order_Table ON Cust_Master.Cust_no = Order_Table.Cust_no
+JOIN Product ON Order_Table.Order_no = Product.Order_no;
+
+-- Inner Join
+SELECT Cust_Master.Cust_name, Order_Table.Order_no, Product.Product_name
+FROM Cust_Master
+INNER JOIN Order_Table ON Cust_Master.Cust_no = Order_Table.Cust_no
+INNER JOIN Product ON Order_Table.Order_no = Product.Order_no;
+
+--Left Join
+SELECT Cust_Master.Cust_name, Order_Table.Order_no, Product.Product_name
+FROM Cust_Master
+LEFT JOIN Order_Table ON Cust_Master.Cust_no = Order_Table.Cust_no
+LEFT JOIN Product ON Order_Table.Order_no = Product.Order_no;
+
+-- Right Join
+SELECT Cust_Master.Cust_name, Order_Table.Order_no, Product.Product_name
+FROM Cust_Master
+RIGHT JOIN Order_Table ON Cust_Master.Cust_no = Order_Table.Cust_no
+RIGHT JOIN Product ON Order_Table.Order_no = Product.Order_no;
+
+--Full Outer Join (may not be supported in all SQL engines, workaround with UNION)
+SELECT Cust_Master.Cust_name, Order_Table.Order_no, Product.Product_name
+FROM Cust_Master
+LEFT JOIN Order_Table ON Cust_Master.Cust_no = Order_Table.Cust_no
+LEFT JOIN Product ON Order_Table.Order_no = Product.Order_no
+UNION
+SELECT Cust_Master.Cust_name, Order_Table.Order_no, Product.Product_name
+FROM Cust_Master
+RIGHT JOIN Order_Table ON Cust_Master.Cust_no = Order_Table.Cust_no
+RIGHT JOIN Product ON Order_Table.Order_no = Product.Order_no;

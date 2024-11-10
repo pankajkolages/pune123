@@ -1,0 +1,135 @@
+// Step 1: Use or create the 'CompanyDB' database
+use CompanyDB
+
+// Step 2: Create the 'Employee' collection and insert sample documents
+db.Employee.insertMany([
+    {
+        Emp_id: 101,
+        Name: { FName: "Rahul", LName: "Sharma" },
+        CompanyName: "TCS",
+        Salary: 60000,
+        Designation: "Developer",
+        Age: 28,
+        Expertise: ["JavaScript", "Node.js", "MongoDB"],
+        DOB: "1996-05-12",
+        Email: "rahul.sharma@tcs.com",
+        Contact: "9876543210",
+        Address: [
+            { PAddr: "123 Main St, Delhi", LAddr: "456 Park Ave, Mumbai" }
+        ]
+    },
+    {
+        Emp_id: 102,
+        Name: { FName: "Priya", LName: "Mehta" },
+        CompanyName: "Infosys",
+        Salary: 55000,
+        Designation: "Analyst",
+        Age: 27,
+        Expertise: ["Python", "SQL", "Data Analysis"],
+        DOB: "1997-03-18",
+        Email: "priya.mehta@infosys.com",
+        Contact: "8765432109",
+        Address: [
+            { PAddr: "789 Hill Road, Pune", LAddr: "890 Green St, Bangalore" }
+        ]
+    },
+    {
+        Emp_id: 103,
+        Name: { FName: "Swapnil", LName: "Jadhav" },
+        CompanyName: "Wipro",
+        Salary: 50000,
+        Designation: "DBA",
+        Age: 30,
+        Expertise: ["Database Management", "SQL", "Backup & Recovery"],
+        DOB: "1994-04-25",
+        Email: "swapnil.jadhav@wipro.com",
+        Contact: "9012345678",
+        Address: [
+            { PAddr: "55 Tech Park, Pune", LAddr: "23 IT Hub, Mumbai" }
+        ]
+    },
+    {
+        Emp_id: 104,
+        Name: { FName: "Sunita", LName: "Rao" },
+        CompanyName: "Wipro",
+        Salary: 48000,
+        Designation: "HR",
+        Age: 32,
+        Expertise: ["Recruitment", "Management", "Communication"],
+        DOB: "1992-11-02",
+        Email: "sunita.rao@wipro.com",
+        Contact: "9988776655",
+        Address: [
+            { PAddr: "45 Industry Lane, Chennai", LAddr: "67 Business St, Hyderabad" }
+        ]
+    },
+    {
+        Emp_id: 105,
+        Name: { FName: "Pankaj", LName: "Verma" },
+        CompanyName: "Infosys",
+        Salary: 70000,
+        Designation: "Developer",
+        Age: 29,
+        Expertise: ["Java", "Spring Boot", "Microservices"],
+        DOB: "1995-01-15",
+        Email: "pankaj.verma@infosys.com",
+        Contact: "9900775544",
+        Address: [
+            { PAddr: "78 Lake View, Jaipur", LAddr: "101 Main Rd, Delhi" }
+        ]
+    }
+])
+
+// Step 3: Aggregation to separate and count unique values in the Expertise array
+db.Employee.aggregate([
+    { $unwind: "$Expertise" },
+    { $group: { _id: "$Expertise", count: { $sum: 1 } } }
+])
+
+// Step 4: Aggregation to find Max and Min Salary for each company
+db.Employee.aggregate([
+    {
+        $group: {
+            _id: "$CompanyName",
+            maxSalary: { $max: "$Salary" },
+            minSalary: { $min: "$Salary" }
+        }
+    }
+])
+
+// Step 5: Aggregation to find total salary for each city where Designation is "DBA"
+db.Employee.aggregate([
+    { $match: { Designation: "DBA" } },
+    { $unwind: "$Address" },
+    {
+        $group: {
+            _id: "$Address.PAddr",
+            totalSalary: { $sum: "$Salary" }
+        }
+    }
+])
+
+// Step 6: Aggregation to separate Expertise values for employee named "Swapnil Jadhav"
+db.Employee.aggregate([
+    { $match: { "Name.FName": "Swapnil", "Name.LName": "Jadhav" } },
+    { $unwind: "$Expertise" },
+    { $group: { _id: "$Expertise" } }
+])
+
+// Step 7: Create a compound index on Name and Age
+db.Employee.createIndex({ "Name": 1, Age: -1 })
+
+// Step 8: Create an index on Emp_id and measure search performance
+db.Employee.createIndex({ Emp_id: 1 })
+
+// To compare search time, use this search before and after creating the index:
+console.time("Search without index")
+db.Employee.find({ Emp_id: 105 })
+console.timeEnd("Search without index")
+
+console.time("Search with index")
+db.Employee.find({ Emp_id: 105 })
+console.timeEnd("Search with index")
+
+// Step 9: List all indexes on the Employee collection
+db.Employee.getIndexes()

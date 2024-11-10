@@ -1,0 +1,105 @@
+create database Employee_s6;
+
+use Employee_s6;
+
+-- Create Employee table
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    employee_name VARCHAR(50) NOT NULL UNIQUE,
+    street VARCHAR(100) NOT NULL,
+    city VARCHAR(50) NOT NULL
+);
+
+-- Create Company table
+CREATE TABLE Company (
+    company_name VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50) NOT NULL
+);
+
+-- Create Works table
+CREATE TABLE Works (
+    employee_name VARCHAR(50),
+    company_name VARCHAR(50),
+    salary DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (employee_name, company_name),
+    FOREIGN KEY (employee_name) REFERENCES Employee(employee_name),
+    FOREIGN KEY (company_name) REFERENCES Company(company_name)
+);
+
+-- Create Manages table
+CREATE TABLE Manages (
+    employee_name VARCHAR(50),
+    manager_name VARCHAR(50),
+    PRIMARY KEY (employee_name, manager_name),
+    FOREIGN KEY (employee_name) REFERENCES Employee(employee_name),
+    FOREIGN KEY (manager_name) REFERENCES Employee(employee_name)
+);
+
+-- Insert data into Employee table
+INSERT INTO Employee (emp_id, employee_name, street, city) VALUES
+(1, 'Arjun Mehta', 'MG Road', 'Mumbai'),
+(2, 'Rohit Sharma', 'Park Street', 'Delhi'),
+(3, 'Ananya Singh', 'Churchgate', 'Chennai'),
+(4, 'Priya Nair', 'Jayanagar', 'Bangalore'),
+(5, 'Kunal Kapoor', 'Indira Nagar', 'Hyderabad');
+
+-- Insert data into Company table
+INSERT INTO Company (company_name, city) VALUES
+('InfoSys', 'Pune'),
+('TechM', 'Mumbai'),
+('Wipro', 'Hyderabad');
+
+-- Insert data into Works table
+INSERT INTO Works (employee_name, company_name, salary) VALUES
+('Arjun Mehta', 'InfoSys', 15000),
+('Rohit Sharma', 'TechM', 12000),
+('Ananya Singh', 'Wipro', 14000),
+('Priya Nair', 'InfoSys', 18000),
+('Kunal Kapoor', 'TechM', 10500);
+
+-- Insert data into Manages table
+INSERT INTO Manages (employee_name, manager_name) VALUES
+('Arjun Mehta', 'Priya Nair'),
+('Rohit Sharma', 'Kunal Kapoor'),
+('Ananya Singh', 'Arjun Mehta'),
+('Kunal Kapoor', 'Rohit Sharma');
+
+-- Change the city of employees working with InfoSys to ‘Bangalore’.
+UPDATE Employee
+SET city = 'Bangalore'
+WHERE employee_name IN (
+    SELECT employee_name
+    FROM Works
+    WHERE company_name = 'InfoSys'
+);
+
+-- Find the names of all employees who earn more than the average salary of all employees of their company.
+SELECT w.employee_name
+FROM Works w
+JOIN (
+    SELECT company_name, AVG(salary) AS avg_salary
+    FROM Works
+    GROUP BY company_name
+) AS avg_table ON w.company_name = avg_table.company_name
+WHERE w.salary > avg_table.avg_salary;
+
+-- Find the names, street addresses, and cities of residence for all employees who work for 'TechM' and earn more than $10,000.
+SELECT e.employee_name, e.street, e.city
+FROM Employee e
+JOIN Works w ON e.employee_name = w.employee_name
+WHERE w.company_name = 'TechM' AND w.salary > 10000;
+
+-- Change the name of the Manages table to Management.
+ALTER TABLE Manages RENAME TO Management;
+
+-- Create a simple and unique index on the Employee table.
+-- Simple index on 'city'
+CREATE INDEX idx_city ON Employee(city);
+
+-- Unique index on 'employee_name'
+CREATE UNIQUE INDEX idx_employee_name ON Employee(employee_name);
+
+-- Display index information.
+SHOW INDEX FROM Employee;
+
+

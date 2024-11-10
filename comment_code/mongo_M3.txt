@@ -1,0 +1,128 @@
+// Step 1: Use or create the 'CompanyDB' database
+use CompanyDB
+
+// Step 2: Create the 'Employee' collection and insert sample documents
+db.Employee.insertMany([
+    {
+        Emp_id: 101,
+        Name: { FName: "Rahul", LName: "Sharma" },
+        CompanyName: "TCS",
+        Salary: 60000,
+        Designation: "Developer",
+        Age: 28,
+        Expertise: ["JavaScript", "Node.js", "MongoDB"],
+        DOB: "1996-05-12",
+        Email: "rahul.sharma@tcs.com",
+        Contact: "9876543210",
+        Address: [
+            { PAddr: "123 Main St, Delhi", LAddr: "456 Park Ave, Mumbai", city: "Mumbai", Pin_code: "400001" }
+        ]
+    },
+    {
+        Emp_id: 102,
+        Name: { FName: "Priya", LName: "Mehta" },
+        CompanyName: "Infosys",
+        Salary: 55000,
+        Designation: "Analyst",
+        Age: 27,
+        Expertise: ["Python", "SQL", "Data Analysis"],
+        DOB: "1997-03-18",
+        Email: "priya.mehta@infosys.com",
+        Contact: "8765432109",
+        Address: [
+            { PAddr: "789 Hill Road, Pune", LAddr: "890 Green St, Bangalore", city: "Pune", Pin_code: "411001" }
+        ]
+    },
+    {
+        Emp_id: 103,
+        Name: { FName: "Amit", LName: "Patel" },
+        CompanyName: "TCS",
+        Salary: 50000,
+        Designation: "Tester",
+        Age: 25,
+        Expertise: ["Manual Testing", "Automation", "Selenium"],
+        DOB: "1998-07-20",
+        Email: "amit.patel@tcs.com",
+        Contact: "9123456789",
+        Address: [
+            { PAddr: "123 Tech Blvd, Ahmedabad", LAddr: "456 Innovation Rd, Surat", city: "Ahmedabad", Pin_code: "380001" }
+        ]
+    },
+    {
+        Emp_id: 104,
+        Name: { FName: "Sunita", LName: "Rao" },
+        CompanyName: "Wipro",
+        Salary: 48000,
+        Designation: "HR",
+        Age: 32,
+        Expertise: ["Recruitment", "Management", "Communication"],
+        DOB: "1992-11-02",
+        Email: "sunita.rao@wipro.com",
+        Contact: "9988776655",
+        Address: [
+            { PAddr: "45 Industry Lane, Chennai", LAddr: "67 Business St, Hyderabad", city: "Chennai", Pin_code: "600001" }
+        ]
+    },
+    {
+        Emp_id: 105,
+        Name: { FName: "Pankaj", LName: "Verma" },
+        CompanyName: "Infosys",
+        Salary: 70000,
+        Designation: "Developer",
+        Age: 29,
+        Expertise: ["Java", "Spring Boot", "Microservices"],
+        DOB: "1995-01-15",
+        Email: "pankaj.verma@infosys.com",
+        Contact: "9900775544",
+        Address: [
+            { PAddr: "78 Lake View, Jaipur", LAddr: "101 Main Rd, Delhi", city: "Jaipur", Pin_code: "302001" }
+        ]
+    }
+])
+
+// Step 3: Create a new document if no document exists with specific details
+db.Employee.updateOne(
+    { Designation: "Tester", CompanyName: "TCS", Age: 25 },
+    {
+        $setOnInsert: {
+            Emp_id: 106,
+            Name: { FName: "Neha", LName: "Kumar" },
+            CompanyName: "TCS",
+            Salary: 52000,
+            Designation: "Tester",
+            Age: 25,
+            Expertise: ["Quality Assurance", "Bug Reporting"],
+            DOB: "1999-09-25",
+            Email: "neha.kumar@tcs.com",
+            Contact: "9911223344",
+            Address: [
+                { PAddr: "55 Tech Hub, Noida", LAddr: "88 Work St, Gurgaon", city: "Noida", Pin_code: "201301" }
+            ]
+        }
+    },
+    { upsert: true }
+)
+
+// Step 4: Increase the salary by 2000 for employees working at TCS
+db.Employee.updateMany(
+    { CompanyName: "TCS" },
+    { $inc: { Salary: 2000 } }
+)
+
+// Step 5: Find documents where Address contains city "Pune" and Pin_code "411001"
+db.Employee.find(
+    { "Address": { $elemMatch: { city: "Pune", Pin_code: "411001" } } }
+).pretty()
+
+// Step 6: Find employees working as "Developer" or "Tester"
+db.Employee.find(
+    { Designation: { $in: ["Developer", "Tester"] } }
+).pretty()
+
+// Step 7: Drop a single document where designation is "Developer"
+db.Employee.deleteOne(
+    { Designation: "Developer" }
+)
+
+// Step 8: Count the number of documents in the Employee collection
+db.Employee.countDocuments()

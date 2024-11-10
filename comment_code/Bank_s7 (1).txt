@@ -1,0 +1,161 @@
+create database Bank_s7;
+
+use Bank_s7;
+
+-- Create Branch table
+CREATE TABLE Branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50) NOT NULL,
+    assets DECIMAL(15, 2) NOT NULL
+);
+
+-- Create Customer table
+CREATE TABLE Customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100) NOT NULL,
+    cust_city VARCHAR(50) NOT NULL
+);
+
+-- Create Account table
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    balance DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+-- Create Depositor table
+CREATE TABLE Depositor (
+    cust_name VARCHAR(50),
+    Acc_no INT,
+    PRIMARY KEY (cust_name, Acc_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (Acc_no) REFERENCES Account(Acc_no)
+);
+
+-- Create Loan table
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+-- Create Borrower table
+CREATE TABLE Borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+
+-- Insert into Branch table
+INSERT INTO Branch VALUES ('Pune_Station', 'Pune', 50000000.00);
+INSERT INTO Branch VALUES ('Shivaji_Nagar', 'Pune', 30000000.00);
+INSERT INTO Branch VALUES ('MG_Road', 'Mumbai', 45000000.00);
+
+-- Insert into Customer table
+INSERT INTO Customer VALUES ('Amit Sharma', 'MG Road', 'Mumbai');
+INSERT INTO Customer VALUES ('Priya Deshmukh', 'FC Road', 'Pune');
+INSERT INTO Customer VALUES ('Rohan Patel', 'Juhu', 'Mumbai');
+INSERT INTO Customer VALUES ('Neha Kulkarni', 'Shivaji Nagar', 'Pune');
+INSERT INTO Customer VALUES ('Pooja Iyer', 'Camp', 'Pune');
+
+-- Insert into Account table
+INSERT INTO Account VALUES (101, 'Pune_Station', 25000.00);
+INSERT INTO Account VALUES (102, 'Shivaji_Nagar', 15000.00);
+INSERT INTO Account VALUES (103, 'MG_Road', 30000.00);
+
+-- Insert into Depositor table
+INSERT INTO Depositor VALUES ('Amit Sharma', 101);
+INSERT INTO Depositor VALUES ('Priya Deshmukh', 102);
+INSERT INTO Depositor VALUES ('Rohan Patel', 103);
+
+-- Insert into Loan table
+INSERT INTO Loan VALUES (201, 'Pune_Station', 12000.00);
+INSERT INTO Loan VALUES (202, 'MG_Road', 18000.00);
+INSERT INTO Loan VALUES (203, 'Shivaji_Nagar', 15000.00);
+
+-- Insert into Borrower table
+INSERT INTO Borrower VALUES ('Priya Deshmukh', 201);
+INSERT INTO Borrower VALUES ('Neha Kulkarni', 202);
+INSERT INTO Borrower VALUES ('Pooja Iyer', 203);
+
+-- Create View1 to display a list of all customers in alphabetical order who have a loan from Pune_Station branch.
+CREATE VIEW View1 AS
+SELECT DISTINCT c.cust_name
+FROM Customer c
+JOIN Borrower b ON c.cust_name = b.cust_name
+JOIN Loan l ON b.loan_no = l.loan_no
+WHERE l.branch_name = 'Pune_Station'
+ORDER BY c.cust_name;
+
+-- To display View1
+SELECT * FROM View1;
+
+--Create View2 on the branch table by selecting any two columns and performing insert, update, and delete operations.
+CREATE VIEW View2 AS
+SELECT branch_name, branch_city
+FROM Branch;
+
+-- Insert operation (affects only base table)
+INSERT INTO Branch (branch_name, branch_city, assets)
+VALUES ('Kothrud', 'Pune', 20000000.00);
+
+-- Update operation (affects only base table)
+UPDATE Branch
+SET branch_city = 'Nagpur'
+WHERE branch_name = 'Shivaji_Nagar';
+
+-- Delete operation (affects only base table)
+DELETE FROM Branch
+WHERE branch_name = 'Kothrud';
+
+-- Display View2
+SELECT * FROM View2;
+
+-- Create View3 on the borrower and depositor table by selecting one column from each table and performing insert, update, and delete operations.
+CREATE VIEW View3 AS
+SELECT b.cust_name, d.acc_no
+FROM Borrower b
+JOIN Depositor d ON b.cust_name = d.cust_name;
+
+-- Insert operation (affects only base table)
+-- INSERT INTO Borrower (cust_name, loan_no)
+-- VALUES ('Ravi Kumar', 204);
+
+-- Update operation (affects only base table)
+UPDATE Borrower
+SET loan_no = 205
+WHERE cust_name = 'Pooja Iyer';
+
+-- Delete operation (affects only base table)
+DELETE FROM Borrower
+WHERE cust_name = 'Ravi Kumar';
+
+-- Display View3
+SELECT * FROM View3;
+
+-- Create a union of left and right joins for all customers who have an account or loan or both at the bank.
+SELECT c.cust_name
+FROM Customer c
+LEFT JOIN Depositor d ON c.cust_name = d.cust_name
+UNION
+SELECT c.cust_name
+FROM Customer c
+RIGHT JOIN Borrower b ON c.cust_name = b.cust_name;
+
+-- Create simple and unique indexes.
+-- Create a simple index on the branch_name column in the Branch table
+CREATE INDEX idx_branch_name ON Branch(branch_name);
+
+-- Create a unique index on the cust_name column in the Customer table
+CREATE UNIQUE INDEX idx_unique_cust_name ON Customer(cust_name);
+
+-- Display index information.
+-- To display information about indexes in MySQL
+SHOW INDEX FROM Branch;
+SHOW INDEX FROM Customer;
+
+
