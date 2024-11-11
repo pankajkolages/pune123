@@ -1,0 +1,119 @@
+use CompanyDB;
+
+db.createCollection("Employee");
+
+db.Employee.insertMany([
+    {
+        Name: { FName: "Rahul", LName: "Sharma" },
+        CompanyName: "TCS",
+        Salary: 60000,
+        Designation: "Developer",
+        Age: 28,
+        Expertise: ["JavaScript", "Node.js", "MongoDB"],
+        DOB: "1996-05-12",
+        Email: "rahul.sharma@tcs.com",
+        Contact: "9876543210",
+        Address: [
+            { PAddr: "123 Main St, Delhi", LAddr: "456 Park Ave, Mumbai" }
+        ]
+    },
+    {
+        Name: { FName: "Priya", LName: "Mehta" },
+        CompanyName: "Infosys",
+        Salary: 55000,
+        Designation: "Analyst",
+        Age: 27,
+        Expertise: ["Python", "SQL", "Data Analysis"],
+        DOB: "1997-03-18",
+        Email: "priya.mehta@infosys.com",
+        Contact: "8765432109",
+        Address: [
+            { PAddr: "789 Hill Road, Pune", LAddr: "890 Green St, Bangalore" }
+        ]
+    },
+    {
+        Name: { FName: "Amit", LName: "Patel" },
+        CompanyName: "TCS",
+        Salary: 50000,
+        Designation: "Tester",
+        Age: 25,
+        Expertise: ["Manual Testing", "Automation", "Selenium"],
+        DOB: "1998-07-20",
+        Email: "amit.patel@tcs.com",
+        Contact: "9123456789",
+        Address: [
+            { PAddr: "123 Tech Blvd, Ahmedabad", LAddr: "456 Innovation Rd, Surat" }
+        ]
+    },
+    {
+        Name: { FName: "Sunita", LName: "Rao" },
+        CompanyName: "Wipro",
+        Salary: 48000,
+        Designation: "HR",
+        Age: 32,
+        Expertise: ["Recruitment", "Management", "Communication"],
+        DOB: "1992-11-02",
+        Email: "sunita.rao@wipro.com",
+        Contact: "9988776655",
+        Address: [
+            { PAddr: "45 Industry Lane, Chennai", LAddr: "67 Business St, Hyderabad" }
+        ]
+    },
+    {
+        Name: { FName: "Pankaj", LName: "Verma" },
+        CompanyName: "Infosys",
+        Salary: 70000,
+        Designation: "Developer",
+        Age: 29,
+        Expertise: ["Java", "Spring Boot", "Microservices"],
+        DOB: "1995-01-15",
+        Email: "pankaj.verma@infosys.com",
+        Contact: "9900775544",
+        Address: [
+            { PAddr: "78 Lake View, Jaipur", LAddr: "101 Main Rd, Delhi" }
+        ]
+    }
+]);
+
+db.Employee.find(
+    { $and: [{ Age: { $lt: 30 } }, { Salary: { $gt: 50000 } }] }
+).pretty();
+
+db.Employee.updateOne(
+    { Designation: "Tester", CompanyName: "TCS", Age: 25 },
+    {
+        $setOnInsert: {
+            Name: { FName: "Neha", LName: "Kumar" },
+            CompanyName: "TCS",
+            Salary: 52000,
+            Designation: "Tester",
+            Age: 25,
+            Expertise: ["Quality Assurance", "Bug Reporting"],
+            DOB: "1999-09-25",
+            Email: "neha.kumar@tcs.com",
+            Contact: "9911223344",
+            Address: [
+                { PAddr: "55 Tech Hub, Noida", LAddr: "88 Work St, Gurgaon" }
+            ]
+        }
+    },
+    { upsert: true }
+);
+
+db.Employee.find(
+    { $or: [{ Age: { $lt: 30 } }, { Salary: { $gt: 40000 } }] }
+).pretty();
+
+db.Employee.find(
+    { Designation: { $ne: "Developer" } }
+).pretty();
+
+db.Employee.find(
+    { CompanyName: "Infosys" },
+    { _id: 1, Designation: 1, Address: 1, Name: 1 }
+).pretty();
+
+db.Employee.find(
+    {},
+    { "Name.FName": 1, "Name.LName": 1, _id: 0 }
+).pretty();
