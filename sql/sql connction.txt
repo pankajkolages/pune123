@@ -1,0 +1,33 @@
+import java.sql.*;
+public class StudentCRUD {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/school?useSSL=false";
+        String user = "ADITYA";
+        String password = "pass@123";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             Statement stmt = conn.createStatement()) {
+            String createSql = "INSERT INTO Student (name, age, grade) VALUES ('Alice', 20, 'A')";
+            stmt.executeUpdate(createSql);
+            System.out.println("Record created.");
+            String readSql = "SELECT * FROM Student";
+            ResultSet rs = stmt.executeQuery(readSql);
+            while (rs.next()) {
+                System.out.printf("ID: %d, Name: %s, Age: %d, Grade: %s%n",
+                        rs.getInt("id"), rs.getString("name"), rs.getInt("age"), rs.getString("grade"));
+            }
+            String updateSql = "UPDATE Student SET name = 'Alice Smith', age = 21, grade = 'A+' WHERE id = 1";
+            stmt.executeUpdate(updateSql);
+            System.out.println("Record updated.");
+            String deleteSql = "DELETE FROM Student WHERE id = 1";
+            stmt.executeUpdate(deleteSql);
+            System.out.println("Record deleted.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+/*
+    javac Student.java
+    java -cp ".;c:\Users\adity\Downloads\mysql-connector-j-9.1.0\mysql-connector-j-9.1.0\mysql-connector-j-9.1.0.jar" StudentCRUD
+ */
