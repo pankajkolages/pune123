@@ -1,0 +1,68 @@
+CREATE DATABASE Companies_s8;
+
+USE Companies_s8;
+
+CREATE TABLE Companies (
+    comp_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    cost DECIMAL(15, 2) NOT NULL,
+    year INT NOT NULL
+);
+
+CREATE TABLE Orders (
+    comp_id INT,
+    domain VARCHAR(100) NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (comp_id) REFERENCES Companies(comp_id)
+);
+
+INSERT INTO Companies (comp_id, name, cost, year) VALUES
+(1, 'Tata Motors', 5000000, 2005),
+(2, 'Reliance Industries', 8000000, 2010),
+(3, 'Infosys', 4500000, 2000),
+(4, 'Wipro', 4000000, 1998),
+(5, 'HCL', 3000000, 2002);
+
+INSERT INTO Orders (comp_id, domain, quantity) VALUES
+(1, 'Automobiles', 150),
+(2, 'Energy', 200),
+(3, 'IT Services', 300),
+(5, 'Software', 100);
+
+SELECT c.name, c.cost, o.domain, o.quantity
+FROM Companies c
+INNER JOIN Orders o ON c.comp_id = o.comp_id;
+
+SELECT c.name, c.cost, o.domain, o.quantity
+FROM Companies c
+RIGHT OUTER JOIN Orders o ON c.comp_id = o.comp_id;
+
+SELECT c.name, c.cost, o.domain, o.quantity
+FROM Companies c
+INNER JOIN Orders o ON c.comp_id = o.comp_id
+UNION
+SELECT c.name, c.cost, o.domain, o.quantity
+FROM Companies c
+LEFT OUTER JOIN Orders o ON c.comp_id = o.comp_id;
+
+CREATE VIEW View1 AS
+SELECT c.name, o.quantity
+FROM Companies c
+JOIN Orders o ON c.comp_id = o.comp_id;
+
+CREATE VIEW View2 AS
+SELECT name, cost
+FROM Companies;
+
+INSERT INTO Companies (comp_id, name, cost, year) VALUES (6, 'Tech Mahindra', 3500000, 2015);
+
+UPDATE Companies
+SET cost = 3800000
+WHERE name = 'Tech Mahindra';
+
+DELETE FROM Companies
+WHERE name = 'Tech Mahindra';
+
+SELECT * FROM View1;
+
+SELECT * FROM View2;
