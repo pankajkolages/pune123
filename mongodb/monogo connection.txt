@@ -1,0 +1,8 @@
+from pymongo import MongoClient
+client=MongoClient("mongodb://127.0.0.1:27017")
+dbn=client.test1
+col=dbn.emp
+col.insert_one({"name":"adi","age":19})
+col.update_one({"name":"abc"},{"$setOnInsert":{"age":20,"city":"Pune"}},upsert=True)
+col.delete_one({"name":"adi"})
+print("One document:", col.find_one())
